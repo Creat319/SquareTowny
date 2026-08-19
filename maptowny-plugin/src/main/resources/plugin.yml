@@ -1,0 +1,39 @@
+name: SquareTowny
+version: ${project.version}
+main: me.silverwolfg11.maptowny.MapTowny
+api-version: 1.16
+depend: [ Towny ]
+softdepend: [ squaremap, Pl3xMap, dynmap, BlueMap ]
+authors: [ Silverwolfg11 ]
+description: A squaremap-oriented Towny web-map addon with automatic distinct town colors.
+
+commands:
+  maptowny:
+    description: Command for SquareTowny
+    permission: maptowny.use
+
+permissions:
+  maptowny.admin:
+    description: Admin permission for SquareTowny
+    default: false
+    children:
+      maptowny.use: true
+      maptowny.reload: true
+      maptowny.render: true
+      maptowny.unrender: true
+
+  maptowny.use:
+    description: Permission to use the SquareTowny command
+    default: op
+
+  maptowny.reload:
+    description: Allows access to sub-cmd to reload SquareTowny
+    default: op
+
+  maptowny.render:
+    description: Allows access to sub-cmd to render a town on the web-map.
+    default: op
+
+  maptowny.unrender:
+    description: Allows access to sub-cmd to unrender a town on the web-map.
+    default: op
