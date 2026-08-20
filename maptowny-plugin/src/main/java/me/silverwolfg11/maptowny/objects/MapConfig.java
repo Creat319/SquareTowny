@@ -38,6 +38,8 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -144,20 +146,24 @@ public class MapConfig {
 
     @SerializableConfig
     private class IconInfo {
-        @Comment({"Icon for the town's homeblock. Icon must be a valid image URL.",
-                "Default Icon created by icon king1 licensed under Creative Commons 3.0",
-                "https://creativecommons.org/licenses/by/3.0/"})
+        @Comment({"Icon for the town's homeblock.",
+                "Put 'default' to use the bundled default icon.",
+                "Put 'empty' to not place icons.",
+                "Or use a valid image URL. If the URL fails to load, the bundled default icon is used instead."})
         @Node("town-icon")
-        private String townIconImage = "https://pics.freeicons.io/uploads/icons/png/20952957581537355851-512.png";
+        private String townIconImage = "default";
 
-        @Comment({"Icon for a town if they are the capital of the nation. Icon must be a valid image URL.",
-                "Put 'default' to use the town icon image."})
+        @Comment({"Icon for a town if they are the capital of the nation.",
+                "Put 'default' to use the bundled default icon.",
+                "Put 'empty' to not place icons.",
+                "Or use a valid image URL. If the URL fails to load, the bundled default icon is used instead."})
         @Node("capital-icon")
         private String capitalIconImage = "default";
 
-        @Comment({"Icon for an outpost claim that will appear at the location of outpost spawns. Icon must be a valid image URL.",
-                "Put 'default' to use the town icon image.",
-                "Put 'empty' to not place icons at outposts."})
+        @Comment({"Icon for an outpost claim that will appear at the location of outpost spawns.",
+                "Put 'default' to use the bundled default icon.",
+                "Put 'empty' to not place icons at outposts.",
+                "Or use a valid image URL. If the URL fails to load, the bundled default icon is used instead."})
         @Node("outpost-icon")
         private String outpostIconImage = "default";
 
@@ -168,6 +174,11 @@ public class MapConfig {
         @Comment("Width of the icon")
         @Node("icon-width")
         private int iconSizeY = 35;
+
+        @Comment({"Size of the capital icon (both width and height).",
+                "Keep it smaller than the regular town icon so it doesn't block the map when zoomed out."})
+        @Node("capital-icon-size")
+        private int capitalIconSize = 24;
     }
 
     public List<String> getEnabledWorlds() {
@@ -234,39 +245,61 @@ public class MapConfig {
 
     @Nullable
     public BufferedImage loadCapitalIcon(Logger errorLogger) {
-        String url = iconInfo.capitalIconImage;
-
-        if (url.equalsIgnoreCase("default"))
-            url = iconInfo.townIconImage;
-
-        return loadIcon("capital", url, errorLogger);
+        return loadIcon("capital", iconInfo.capitalIconImage, errorLogger);
     }
 
     @Nullable
     public BufferedImage loadOutpostIcon(Logger errorLogger) {
-        String url = iconInfo.outpostIconImage;
-
-        if (url.isEmpty() || url.equalsIgnoreCase("empty"))
-            return null;
-        else if (url.equalsIgnoreCase("default"))
-            url = iconInfo.townIconImage;
-
-        return loadIcon("outpost", url, errorLogger);
+        return loadIcon("outpost", iconInfo.outpostIconImage, errorLogger);
     }
 
+    // Load an icon by type ("town", "capital", "outpost").
+    // Config values: "default" uses the bundled icon, "empty" disables the icon,
+    // anything else is treated as an image URL that falls back to the bundled icon on failure.
+    @Nullable
     private BufferedImage loadIcon(String type, String urlStr, Logger errorLogger) {
+        if (urlStr.equalsIgnoreCase("empty"))
+            return null;
+
+        if (urlStr.equalsIgnoreCase("default")) {
+            BufferedImage icon = loadBundledIcon(type);
+            if (icon == null)
+                errorLogger.severe("Could not load bundled default " + type + " icon!");
+            return icon;
+        }
+
         URL url;
         try {
             url = new URL(urlStr);
         } catch (MalformedURLException ex) {
-            errorLogger.log(Level.SEVERE, "Cannot load " + type + " icon due to an invalid URL!", ex);
-            return null;
+            errorLogger.warning("Cannot load " + type + " icon due to an invalid URL '" + urlStr + "'. Using the bundled default icon instead!");
+            return loadBundledIcon(type);
         }
 
         try {
-            return ImageIO.read(url);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            // Don't block the server thread for a long time on unreachable icon URLs
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            try (InputStream is = connection.getInputStream()) {
+                return ImageIO.read(is);
+            }
         } catch (IOException e) {
-            errorLogger.log(Level.SEVERE, "Error while loading " + type + " image icon!", e);
+            errorLogger.warning("Error while loading " + type + " image icon from URL '" + urlStr + "'. Using the bundled default icon instead!");
+            return loadBundledIcon(type);
+        }
+    }
+
+    // Load a bundled default icon from the plugin jar resources.
+    @Nullable
+    private BufferedImage loadBundledIcon(String type) {
+        String resourcePath = "/icons/" + type + ".png";
+        try (InputStream is = getClass().getResourceAsStream(resourcePath)) {
+            if (is == null)
+                return null;
+
+            return ImageIO.read(is);
+        } catch (IOException e) {
             return null;
         }
     }
@@ -277,6 +310,10 @@ public class MapConfig {
 
     public int getIconSizeY() {
         return iconInfo.iconSizeY;
+    }
+
+    public int getCapitalIconSize() {
+        return iconInfo.capitalIconSize;
     }
 
 

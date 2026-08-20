@@ -23,7 +23,11 @@
 package me.silverwolfg11.maptowny.listeners;
 
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
+import com.palmergames.bukkit.towny.event.NationAddTownEvent;
+import com.palmergames.bukkit.towny.event.NationRemoveTownEvent;
 import com.palmergames.bukkit.towny.event.NewTownEvent;
+import com.palmergames.bukkit.towny.event.PreDeleteNationEvent;
+import com.palmergames.bukkit.towny.object.Town;
 import me.silverwolfg11.maptowny.MapTowny;
 import me.silverwolfg11.maptowny.objects.TownRenderEntry;
 import org.bukkit.event.EventHandler;
@@ -54,6 +58,34 @@ public class TownClaimListener implements Listener {
     public void onTownDelete(DeleteTownEvent event) {
         UUID townUUID = event.getTownUUID();
         plugin.getLayerManager().removeTownMarker(townUUID);
+    }
+
+    // Re-render a town when it joins a nation so its color updates to the nation color immediately.
+    @EventHandler
+    public void onNationAddTown(NationAddTownEvent event) {
+        reRenderTown(event.getTown());
+    }
+
+    // Re-render a town when it leaves a nation so its color updates to a unique town color immediately.
+    @EventHandler
+    public void onNationRemoveTown(NationRemoveTownEvent event) {
+        reRenderTown(event.getTown());
+    }
+
+    // Re-render all former member towns when a nation is deleted (their colors revert to per-town colors).
+    @EventHandler
+    public void onNationDelete(PreDeleteNationEvent event) {
+        if (event.isCancelled())
+            return;
+
+        event.getNation().getTowns().forEach(this::reRenderTown);
+    }
+
+    private void reRenderTown(Town town) {
+        if (town == null)
+            return;
+
+        plugin.getLayerManager().renderTown(town);
     }
 
 }

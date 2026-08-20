@@ -94,6 +94,11 @@
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
+            <!-- Unfiltered resources (e.g. bundled binary icons) -->
+            <resource>
+                <directory>src/main/resources-raw</directory>
+                <filtering>false</filtering>
+            </resource>
         </resources>
     </build>
 

@@ -48,7 +48,7 @@ public class TownyMapCommand implements TabExecutor {
     private final String PERM_PREFIX = "maptowny.";
     private final String PERM_DENY_MSG = ChatColor.RED + "You do not have permission to use this command!";
 
-    private final String PLUGIN_PREFIX = ChatColor.WHITE + "[" + ChatColor.GREEN + "MapTowny" + ChatColor.WHITE + "] ";
+    private final String PLUGIN_PREFIX = ChatColor.WHITE + "[" + ChatColor.GREEN + "SquareTowny" + ChatColor.WHITE + "] ";
 
     public TownyMapCommand(MapTowny plugin) {
         this.plugin = plugin;

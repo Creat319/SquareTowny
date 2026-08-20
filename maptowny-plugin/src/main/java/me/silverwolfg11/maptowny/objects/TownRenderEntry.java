@@ -26,8 +26,10 @@ import com.palmergames.bukkit.towny.TownySettings;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.TownyWorld;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -76,7 +78,8 @@ public class TownRenderEntry {
         this.townColor = townColor;
         this.autoColor = autoColor;
 
-        this.homeBlockWorld = town.getHomeblockWorld().getName();
+        TownyWorld homeblockWorld = town.getHomeblockWorld();
+        this.homeBlockWorld = homeblockWorld == null ? null : homeblockWorld.getName();
         this.homeBlockPoint = getHomeblockPoint(town).orElse(null);
 
         worldBlocks = townblockByWorlds(town);
@@ -124,7 +127,8 @@ public class TownRenderEntry {
         return hoverText;
     }
 
-    @NotNull
+    // The world of the town's homeblock, or null if the town has no homeblock.
+    @Nullable
     public String getHomeBlockWorld() {
         return homeBlockWorld;
     }
@@ -134,7 +138,8 @@ public class TownRenderEntry {
         return Optional.of(homeBlockPoint);
     }
 
-    public boolean hasWorldBlocks() {
+    // Returns whether the town has no claim blocks to render in any world.
+    public boolean hasNoWorldBlocks() {
         return worldBlocks.isEmpty();
     }
 

@@ -69,7 +69,7 @@ public final class MapTowny extends JavaPlugin implements MapTownyPlugin {
 
         // No map platform found so disable
         if (mapPlatform == null) {
-            getLogger().severe("Error no valid map plugin found! Valid map plugins: Pl3xMap, squaremap, dynmap");
+            getLogger().severe("Error no valid map plugin found! Valid map plugins: Pl3xMap v1, squaremap, dynmap, BlueMap");
             setEnabled(false);
             return;
         }

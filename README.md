@@ -73,6 +73,7 @@ All commands require `maptowny.use` (default: op). `maptowny.admin` grants all o
 | `fill-style.use-town-color-fill` | `false` | Use the town's own color (takes priority over the nation color) |
 | `fill-style.use-auto-colors` | `true` | **Auto colors (this fork)**: give every town/nation a distinct color |
 | `icon-info.*` | — | Town / capital / outpost icon images and sizes |
+| `icon-info.capital-icon-size` | `24` | Capital icon size (smaller than the town icon by default, so it doesn't block the map when zoomed out) |
 
 ### How auto colors work
 
@@ -184,6 +185,7 @@ SquareTowny 是一个基于 [Spigot](https://www.spigotmc.org/) 的插件，作�
 | `fill-style.use-town-color-fill` | `false` | 用城镇自己的颜色（优先于国家色） |
 | `fill-style.use-auto-colors` | `true` | **自动配色（本分支新增）**：让每个城镇/国家颜色各不相同 |
 | `icon-info.*` | — | 城镇/首都/前哨站图标及尺寸 |
+| `icon-info.capital-icon-size` | `24` | 首都图标尺寸（默认小于城镇图标，缩小地图时不会遮挡画面） |
 
 ### 自动配色说明
 

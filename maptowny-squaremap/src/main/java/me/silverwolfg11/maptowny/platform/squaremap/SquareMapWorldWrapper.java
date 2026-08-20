@@ -42,6 +42,13 @@ public class SquareMapWorldWrapper implements MapWorld {
 
     @Override
     public @NotNull MapLayer registerLayer(@NotNull String layerKey, @NotNull LayerOptions options) {
+        Key key = Key.of(layerKey);
+
+        // Replace any existing layer with the same key (e.g. a leftover from a previous
+        // plugin instance or a stale registration) instead of failing.
+        if (mapWorld.layerRegistry().hasEntry(key))
+            mapWorld.layerRegistry().unregister(key);
+
         SimpleLayerProvider layerProvider = SimpleLayerProvider.builder(options.getName())
                 .defaultHidden(options.isDefaultHidden())
                 .layerPriority(options.getLayerPriority())
@@ -49,7 +56,7 @@ public class SquareMapWorldWrapper implements MapWorld {
                 .showControls(options.showControls())
                 .build();
 
-        mapWorld.layerRegistry().register(Key.of(layerKey), layerProvider);
+        mapWorld.layerRegistry().register(key, layerProvider);
         return SquareMapLayerWrapper.from(layerProvider);
     }
 

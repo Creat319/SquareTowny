@@ -60,6 +60,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -125,10 +126,16 @@ public class TownyLayerManager implements LayerManager {
                 continue;
             }
 
-            LayerOptions layerOptions = plugin.config().getLayerOptions();
-            MapLayer mapLayer = platform.getWorld(world).registerLayer(LAYER_KEY, layerOptions);
-            worldProviders.put(world.getName(), mapLayer);
+            try {
+                LayerOptions layerOptions = plugin.config().getLayerOptions();
+                MapLayer mapLayer = platform.getWorld(world).registerLayer(LAYER_KEY, layerOptions);
+                worldProviders.put(world.getName(), mapLayer);
+            } catch (Exception ex) {
+                plugin.getLogger().log(Level.SEVERE, "Error registering the towny layer for world " + worldName + "!", ex);
+            }
         }
+
+        plugin.getLogger().info("Registered towny layers for worlds: " + String.join(", ", worldProviders.keySet()));
 
         // Load icons
         int iconWidth = plugin.config().getIconSizeX();
@@ -194,7 +201,7 @@ public class TownyLayerManager implements LayerManager {
             return;
 
         // Fast-return if there are no townblocks
-        if (tre.hasWorldBlocks())
+        if (tre.hasNoWorldBlocks())
             return;
 
         // Single-reference in case config reloads during method
@@ -313,11 +320,16 @@ public class TownyLayerManager implements LayerManager {
                                     config.getIconSizeX(), config.getIconSizeY());
 
                 // Check if this is the proper world provider to add the town icon
-                if (homeBlockWorld.equals(worldName)) {
+                // (skip if the town has no homeblock)
+                if (homeBlockWorld != null && homeBlockWorld.equals(worldName)) {
                     // Add icon markers
                     Optional<Point2D> homeblockPoint = tre.getHomeBlockPoint();
                     // Check if icon exists
                     if (homeblockPoint.isPresent() && mapPlatform.hasIcon(event.getHomeBlockIconKey())) {
+                        // Capital icons use their own (smaller) size so they don't block the map when zoomed out
+                        int iconSizeX = tre.isCapital() ? config.getCapitalIconSize() : config.getIconSizeX();
+                        int iconSizeY = tre.isCapital() ? config.getCapitalIconSize() : config.getIconSizeY();
+
                         MarkerOptions iconOptions = MarkerOptions.builder()
                                                                  .name(generalOptions.name())
                                                                  .clickTooltip(generalOptions.clickTooltip())
@@ -325,7 +337,7 @@ public class TownyLayerManager implements LayerManager {
                                                                  .build();
 
                         worldProvider.addIconMarker(townIconKey, event.getHomeBlockIconKey(), homeblockPoint.get(),
-                                                    config.getIconSizeX(), config.getIconSizeY(),
+                                                    iconSizeX, iconSizeY,
                                                     iconOptions);
                     }
                 }
