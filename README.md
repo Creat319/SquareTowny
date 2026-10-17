@@ -19,7 +19,7 @@ This repository is a **squaremap-oriented customized fork** of [TownyAdvanced/Ma
 ## Features
 
 - Each town gets a **visually distinct color** (auto-generated). Towns belonging to the same **nation share one color**, so nation borders are easy to spot.
-- Colors set manually in Towny (`/town set mapcolor`, `/nation set mapcolor`) always take priority over auto-generated colors.
+- Auto colors take priority over the map colors stored in Towny. Towny assigns a random map color to every new town/nation (those values are indistinguishable from manually chosen colors), so they would otherwise override the auto colors. Set `fill-style.use-auto-colors: false` to use the colors configured in Towny instead.
 - Configurable marker options: fill/stroke colors, opacity, stroke width, icons, etc.
 - Fully async processing; the server thread is never blocked.
 - Multiple web-map support: squaremap, dynmap, BlueMap (limited), Pl3xMap v1.
@@ -41,7 +41,7 @@ This repository is a **squaremap-oriented customized fork** of [TownyAdvanced/Ma
 
 ## Installation
 
-1. Put the plugin jar (`maptowny-plugin/target/SquareTowny-1.0.jar`) into your server's `plugins` folder.
+1. Put the plugin jar (`maptowny-plugin/target/SquareTowny-1.1.jar`) into your server's `plugins` folder.
 2. Restart the server. A `SquareTowny/config.yml` file will be generated.
 3. Set the `enabled-worlds` option to the worlds where you want town claims to show up.
 
@@ -68,18 +68,20 @@ All commands require `maptowny.use` (default: op). `maptowny.admin` grants all o
 | `layer.*` | — | Layer name, visibility controls, priority, z-index |
 | `fill-style.fill-color` | `"#3388ff"` | Default fill color |
 | `fill-style.fill-opacity` | `0.2` | Fill opacity |
-| `fill-style.use-nation-color-fill` | `true` | Use the nation's color to fill claims |
+| `fill-style.use-nation-color-fill` | `true` | Use the nation's color to fill claims (only when `use-auto-colors` is `false`) |
 | `fill-style.stroke-color` | `"#3388ff"` | Default stroke color |
-| `fill-style.use-town-color-fill` | `false` | Use the town's own color (takes priority over the nation color) |
-| `fill-style.use-auto-colors` | `true` | **Auto colors (this fork)**: give every town/nation a distinct color |
+| `fill-style.use-town-color-fill` | `false` | Use the town's own color, taking priority over the nation color (only when `use-auto-colors` is `false`) |
+| `fill-style.use-auto-colors` | `true` | **Auto colors (this fork)**: give every town/nation a distinct color (takes priority over the map colors stored in Towny) |
 | `icon-info.*` | — | Town / capital / outpost icon images and sizes |
 | `icon-info.capital-icon-size` | `24` | Capital icon size (smaller than the town icon by default, so it doesn't block the map when zoomed out) |
 
 ### How auto colors work
 
 - A town **without a nation** gets a unique color derived from its UUID (stable across restarts).
-- All towns **in the same nation** share the same color, derived from the nation's UUID.
-- If a color was manually set in Towny for the town or its nation, the manual color is used instead.
+- All towns **in the same nation** share the color of the nation's **capital town**. A town therefore keeps its color when it creates a nation, and towns that join later adopt that color.
+- The nation color follows the capital; if the capital is transferred to another town, the nation's color changes with it.
+- **Auto colors are enabled by default and take priority over the map colors stored in Towny.** Towny assigns a random map color to every town and nation when it is created (`global_town_settings.allowed_map_colors` / `global_nation_settings.allowed_map_colors`), and those colors cannot be told apart from colors set manually. Without this rule, a town would lose its auto color as soon as it creates or joins a nation and would fall back to the default marker color.
+- To use the map colors set in Towny (`/town set mapcolor`, `/nation set mapcolor`) together with the `use-nation-color-*` / `use-town-color-*` options, set `fill-style.use-auto-colors: false`.
 - Colors update automatically on the next periodic re-render (or with `/maptowny reload`).
 
 ## Plugin API
@@ -105,7 +107,7 @@ Two ways to build:
    mvn -t toolchains-local.xml clean package
    ```
 
-The finished plugin jar is `maptowny-plugin/target/SquareTowny-1.0.jar`.
+The finished plugin jar is `maptowny-plugin/target/SquareTowny-1.1.jar`.
 
 ## License
 
@@ -131,7 +133,7 @@ SquareTowny 是一个基于 [Spigot](https://www.spigotmc.org/) 的插件，作�
 ## 功能特性
 
 - 每个城镇自动生成**独一无二的颜色**；同一**国家**内的城镇共用同一种颜色，国家边界一目了然。
-- Towny 中手动设置的颜色（`/town set mapcolor`、`/nation set mapcolor`）始终优先于自动颜色。
+- 自动配色优先于 Towny 中保存的地图颜色。Towny 会给每个新建城镇/国家随机分配一个地图颜色，这些值与玩家手动设置的颜色无法区分，因此若不优先自动配色，城镇加入国家后就会退回默认颜色。如需使用 Towny 中设置的颜色，请设置 `fill-style.use-auto-colors: false`。
 - 可配置的标记样式：填充/描边颜色、透明度、描边粗细、图标等。
 - 全异步处理，不阻塞主线程。
 - 同时支持多种网页地图：squaremap、dynmap、BlueMap（支持有限）、Pl3xMap v1。
@@ -153,7 +155,7 @@ SquareTowny 是一个基于 [Spigot](https://www.spigotmc.org/) 的插件，作�
 
 ## 安装
 
-1. 把插件 jar（`maptowny-plugin/target/SquareTowny-1.0.jar`）放入服务器的 `plugins` 目录。
+1. 把插件 jar（`maptowny-plugin/target/SquareTowny-1.1.jar`）放入服务器的 `plugins` 目录。
 2. 重启服务器，会自动生成 `SquareTowny/config.yml`。
 3. 把 `enabled-worlds` 改成你想显示领地范围的世界名。
 
@@ -180,18 +182,20 @@ SquareTowny 是一个基于 [Spigot](https://www.spigotmc.org/) 的插件，作�
 | `layer.*` | — | 图层名称、显示开关、优先级、z-index |
 | `fill-style.fill-color` | `"#3388ff"` | 默认填充色 |
 | `fill-style.fill-opacity` | `0.2` | 填充不透明度 |
-| `fill-style.use-nation-color-fill` | `true` | 用国家颜色填充领地 |
+| `fill-style.use-nation-color-fill` | `true` | 用国家颜色填充领地（仅在 `use-auto-colors` 为 `false` 时生效） |
 | `fill-style.stroke-color` | `"#3388ff"` | 默认描边色 |
-| `fill-style.use-town-color-fill` | `false` | 用城镇自己的颜色（优先于国家色） |
-| `fill-style.use-auto-colors` | `true` | **自动配色（本分支新增）**：让每个城镇/国家颜色各不相同 |
+| `fill-style.use-town-color-fill` | `false` | 用城镇自己的颜色，优先于国家色（仅在 `use-auto-colors` 为 `false` 时生效） |
+| `fill-style.use-auto-colors` | `true` | **自动配色（本分支新增）**：让每个城镇/国家颜色各不相同（优先于 Towny 中保存的地图颜色） |
 | `icon-info.*` | — | 城镇/首都/前哨站图标及尺寸 |
 | `icon-info.capital-icon-size` | `24` | 首都图标尺寸（默认小于城镇图标，缩小地图时不会遮挡画面） |
 
 ### 自动配色说明
 
 - **没有国家**的城镇：按城镇 UUID 生成独一无二的颜色（重启后保持稳定）。
-- **同一国家**内的城镇：共用同一种颜色（按国家 UUID 生成）。
-- 城镇或国家在 Towny 中手动设置过颜色时，使用手动颜色。
+- **同一国家**内的城镇：共用**首都城镇**的颜色。城镇建国后颜色保持不变，之后加入的城镇也会变成首都的颜色。
+- 国家颜色跟随首都；如果把首都转移到另一座城镇，国家颜色也会随之改变。
+- **自动配色默认开启，并优先于 Towny 中保存的地图颜色。** 因为 Towny 会给每个新建城镇和国家随机分配地图颜色（`global_town_settings.allowed_map_colors` / `global_nation_settings.allowed_map_colors`），这些颜色与手动设置的颜色无法区分；若不这样处理，城镇建国或加入国家后就会丢失自动配色、退回默认颜色。
+- 如需使用 Towny 中设置的颜色（`/town set mapcolor`、`/nation set mapcolor`）以及 `use-nation-color-*` / `use-town-color-*` 选项，请设置 `fill-style.use-auto-colors: false`。
 - 颜色会在下一次周期重渲染时自动更新（或执行 `/maptowny reload`）。
 
 ## 插件 API
@@ -217,7 +221,7 @@ SquareTowny 提供小型 API（`maptowny-api` 模块）供其他插件集成，�
    mvn -t toolchains-local.xml clean package
    ```
 
-构建产物为 `maptowny-plugin/target/SquareTowny-1.0.jar`。
+构建产物为 `maptowny-plugin/target/SquareTowny-1.1.jar`。
 
 ## 许可证
 

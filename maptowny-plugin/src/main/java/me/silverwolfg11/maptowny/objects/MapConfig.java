@@ -104,7 +104,8 @@ public class MapConfig {
         @Node("fill-opacity")
         private double fillOpacity = 0.2;
 
-        @Comment("Use specified nation color as the fill color instead?")
+        @Comment({"Use specified nation color as the fill color instead?",
+                  "Only used when 'use-auto-colors' is disabled."})
         @Node("use-nation-color-fill")
         private boolean useNationColorFill = true;
 
@@ -121,24 +122,29 @@ public class MapConfig {
         @Node("stroke-opacity")
         private double strokeOpacity = 1.0;
 
-        @Comment("Use specified nation color as the stroke color instead?")
+        @Comment({"Use specified nation color as the stroke color instead?",
+                  "Only used when 'use-auto-colors' is disabled."})
         @Node("use-nation-color-stroke")
         private boolean useNationColorStroke = false;
 
         @Node("use-town-color-fill")
         @Comment({"Use specified town color as the fill color instead?",
-                  "This option will take priority over the 'use-nation-color-fill' option if it is enabled."})
+                  "This option will take priority over the 'use-nation-color-fill' option if it is enabled.",
+                  "Only used when 'use-auto-colors' is disabled."})
         private boolean useTownColorFill = false;
 
         @Node("use-town-color-stroke")
         @Comment({"Use specified town color as the stroke color instead?",
-                "This option will take priority over the 'use-nation-color-stroke' option if it is enabled."})
+                "This option will take priority over the 'use-nation-color-stroke' option if it is enabled.",
+                "Only used when 'use-auto-colors' is disabled."})
         private boolean useTownColorStroke = false;
 
         @Node("use-auto-colors")
         @Comment({"Automatically color each town so towns are visually distinct on the map.",
                   "Towns in the same nation will share the same color.",
-                  "This only applies when the town and its nation have no map color configured."})
+                  "This takes priority over the map colors stored in Towny, because Towny",
+                  "automatically assigns a random map color to every new town and nation.",
+                  "Disable this option to use the map colors configured in Towny instead."})
         private boolean useAutoColors = true;
 
         private transient Color awtFillColor, awtStrokeColor;

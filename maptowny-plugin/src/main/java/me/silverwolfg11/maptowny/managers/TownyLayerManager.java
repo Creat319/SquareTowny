@@ -175,14 +175,24 @@ public class TownyLayerManager implements LayerManager {
         // Get all objects that must be fetched synchronously
         // This includes anything that uses the Towny or Bukkit API.
 
-        Color nationColor = getNationColor(town).orElse(null);
-        Color townColor = getTownColor(town).orElse(null);
-
         Color autoColor = null;
-        // Fall back to an auto-generated color so every town/nation is visually distinct
-        // when neither the town nor its nation has a map color configured.
-        if (plugin.config().useAutoColors() && nationColor == null && townColor == null) {
+        Color nationColor = null;
+        Color townColor = null;
+
+        if (plugin.config().useAutoColors()) {
+            // Auto colors take priority over the map colors stored in Towny.
+            // Towny assigns a random map color to every town and nation when it is created
+            // (global_town_settings.allowed_map_colors / global_nation_settings.allowed_map_colors),
+            // and those automatically assigned colors cannot be told apart from colors a player
+            // set manually. Using them first would make a town lose its auto color as soon as it
+            // creates or joins a nation (the fill switched to the nation color while the stroke
+            // fell back to the default marker color). To use the colors stored in Towny instead,
+            // disable 'use-auto-colors'.
             autoColor = generateAutoColor(town);
+        }
+        else {
+            nationColor = getNationColor(town).orElse(null);
+            townColor = getTownColor(town).orElse(null);
         }
 
         Logger logger = plugin.getLogger();
@@ -289,9 +299,9 @@ public class TownyLayerManager implements LayerManager {
                     }
                 }
 
-                // Use the auto-generated fallback color if no explicit color was applied.
-                // An auto color is only generated when neither a nation nor town color exists,
-                // so it replaces the default color and is applied to both fill and stroke.
+                // Use the auto-generated color when auto colors are enabled.
+                // Auto colors are exclusive with the nation/town colors above (see buildTownEntry),
+                // so they always replace the default marker colors for fill and stroke.
                 if (autoColor.isPresent()) {
                     optionsBuilder.fillColor(autoColor.get());
                     optionsBuilder.strokeColor(autoColor.get());
@@ -430,17 +440,29 @@ public class TownyLayerManager implements LayerManager {
 
     // Generate a deterministic color for a town so that towns are visually distinct on the map.
     // Towns without a nation get a color unique to the town.
-    // Towns in the same nation all share the same color (derived from the nation).
+    // Towns in the same nation all share the color of their capital town: a town keeps its color
+    // when it creates a nation, and towns that join the nation later adopt that color.
     @NotNull
     private Color generateAutoColor(Town town) {
-        String seed;
-        if (town.hasNation()) {
-            Nation nation = TownyAPI.getInstance().getTownNationOrNull(town);
-            seed = nation != null ? nation.getUUID().toString() : town.getUUID().toString();
+        final UUID seedUUID;
+
+        Nation nation = town.hasNation() ? TownyAPI.getInstance().getTownNationOrNull(town) : null;
+
+        if (nation != null) {
+            Town capital = nation.getCapital();
+            // During nation creation the capital is assigned right after the founding town has
+            // been added to the nation, so fall back to the founding town (the first town of
+            // the nation) while the capital is still unset.
+            if (capital == null && !nation.getTowns().isEmpty())
+                capital = nation.getTowns().get(0);
+
+            seedUUID = capital != null ? capital.getUUID() : nation.getUUID();
         }
         else {
-            seed = town.getUUID().toString();
+            seedUUID = town.getUUID();
         }
+
+        String seed = seedUUID.toString();
 
         // FNV-1a 64-bit hash to get a well-distributed seed value
         long hash = 0xcbf29ce484222325L;

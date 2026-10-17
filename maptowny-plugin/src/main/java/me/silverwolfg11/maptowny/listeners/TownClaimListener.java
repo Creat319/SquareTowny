@@ -30,9 +30,12 @@ import com.palmergames.bukkit.towny.event.PreDeleteNationEvent;
 import com.palmergames.bukkit.towny.object.Town;
 import me.silverwolfg11.maptowny.MapTowny;
 import me.silverwolfg11.maptowny.objects.TownRenderEntry;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class TownClaimListener implements Listener {
@@ -73,12 +76,18 @@ public class TownClaimListener implements Listener {
     }
 
     // Re-render all former member towns when a nation is deleted (their colors revert to per-town colors).
+    // The re-render is postponed by one tick because the event is fired while the towns still belong
+    // to the nation; re-rendering now would keep them colored with the color of the deleted nation.
     @EventHandler
     public void onNationDelete(PreDeleteNationEvent event) {
         if (event.isCancelled())
             return;
 
-        event.getNation().getTowns().forEach(this::reRenderTown);
+        final List<Town> formerTowns = new ArrayList<>(event.getNation().getTowns());
+        if (formerTowns.isEmpty())
+            return;
+
+        Bukkit.getScheduler().runTask(plugin, () -> formerTowns.forEach(this::reRenderTown));
     }
 
     private void reRenderTown(Town town) {
