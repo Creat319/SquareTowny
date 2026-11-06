@@ -84,7 +84,7 @@ public class MapConfig {
         @Node("default-hidden")
         private boolean defaultHidden = false;
 
-        @Comment({"Layer Priority.", "Don't need to touch this unless other Pl3xMap add-ons are interfering with the layer."})
+        @Comment({"Layer Priority.", "Don't need to touch this unless other squaremap add-ons are interfering with the layer."})
         @Node("layer-priority")
         private int layerPriority = 5;
 

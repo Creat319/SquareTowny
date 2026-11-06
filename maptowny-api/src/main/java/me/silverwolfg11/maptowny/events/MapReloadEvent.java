@@ -27,7 +27,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * This event is purely informative and is called when the Pl3xMap-Towny plugin is reloaded.
+ * This event is purely informative and is called when the SquareTowny plugin is reloaded.
  */
 public class MapReloadEvent extends Event {
     private static final HandlerList handlers = new HandlerList();

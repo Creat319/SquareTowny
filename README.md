@@ -10,11 +10,10 @@
 
 SquareTowny is a [Spigot](https://www.spigotmc.org/) plugin that works as an add-on to [Towny](https://github.com/TownyAdvanced/Towny). It renders the claim areas of every town onto a web map, so players can see the territory of each town (and nation) directly on the map.
 
-This repository is a **squaremap-oriented customized fork** of [TownyAdvanced/MapTowny](https://github.com/TownyAdvanced/MapTowny) (originally by Silverwolfg11, MIT licensed) with the following changes:
+This repository is a **squaremap-only customized fork** of [TownyAdvanced/MapTowny](https://github.com/TownyAdvanced/MapTowny) (originally by Silverwolfg11, MIT licensed) with the following changes:
 
 - **Automatic distinct colors** *(new feature)*: every town is rendered with its own color, and towns in the same nation share the same color.
-- **Removed** the `maptowny-pl3xmap-v2` and `maptowny-pl3xmap-v3` modules, because their build dependencies are no longer published on Modrinth's Maven repository and can no longer be resolved.
-- The remaining supported web maps are: **squaremap, dynmap, BlueMap and Pl3xMap v1** (squaremap is the primary target).
+- **squaremap is the only supported web map.** The `maptowny-bluemap`, `maptowny-dynmap`, `maptowny-pl3xmap-v1`, `maptowny-pl3xmap-v2` and `maptowny-pl3xmap-v3` modules have been removed. The plugin disables itself when squaremap is not installed.
 
 ## Features
 
@@ -22,26 +21,26 @@ This repository is a **squaremap-oriented customized fork** of [TownyAdvanced/Ma
 - Auto colors take priority over the map colors stored in Towny. Towny assigns a random map color to every new town/nation (those values are indistinguishable from manually chosen colors), so they would otherwise override the auto colors. Set `fill-style.use-auto-colors: false` to use the colors configured in Towny instead.
 - Configurable marker options: fill/stroke colors, opacity, stroke width, icons, etc.
 - Fully async processing; the server thread is never blocked.
-- Multiple web-map support: squaremap, dynmap, BlueMap (limited), Pl3xMap v1.
+- squaremap only — dynmap, BlueMap and Pl3xMap are **not** supported.
 - Unit-tested polygon outline (contour) and negative-space (hole-finding) algorithms.
 
 ## Supported Web Maps
 
 | Map | Version | Support |
 | --- | --- | --- |
-| [squaremap](https://github.com/jpenilla/squaremap) | current | Full (primary) |
-| [dynmap](https://www.spigotmc.org/resources/dynmap%C2%AE.274/) | current | Full |
-| [BlueMap](https://www.spigotmc.org/resources/bluemap.83557/) | v3.3+ | Limited |
-| [Pl3xMap](https://github.com/pl3xgaming/Pl3xMap) v1 | v1 (use this [fork](https://github.com/NeumimTo/Pl3xMap) for 1.18+) | Full |
+| [squaremap](https://github.com/jpenilla/squaremap) | current | Full (only supported map) |
+| dynmap | — | ❌ Not supported |
+| BlueMap | — | ❌ Not supported |
+| Pl3xMap (v1 / v2 / v3) | — | ❌ Not supported |
 
 ## Dependencies
 
 - [Towny](https://github.com/TownyAdvanced/Towny) 0.97.1 or later (**required**)
-- One of the web-map plugins listed above (**required**)
+- [squaremap](https://github.com/jpenilla/squaremap) (**required** — the plugin disables itself without it)
 
 ## Installation
 
-1. Put the plugin jar (`maptowny-plugin/target/SquareTowny-1.1.jar`) into your server's `plugins` folder.
+1. Put the plugin jar (`maptowny-plugin/target/SquareTowny-1.2.jar`) into your server's `plugins` folder.
 2. Restart the server. A `SquareTowny/config.yml` file will be generated.
 3. Set the `enabled-worlds` option to the worlds where you want town claims to show up.
 
@@ -94,20 +93,19 @@ This is a standard Maven multi-module project that uses the [maven-toolchains-pl
 
 | Module | JDK target |
 | --- | --- |
-| `maptowny-api`, `maptowny-plugin`, `maptowny-dynmap` | 8 |
-| `maptowny-bluemap` | 11 |
-| `maptowny-squaremap`, `maptowny-pl3xmap-v1` | 16 |
+| `maptowny-api`, `maptowny-plugin` | 8 |
+| `maptowny-squaremap` | 16 |
 
 Two ways to build:
 
-1. **Standard toolchains** — configure a `~/.m2/toolchains.xml` with JDK 8, 11 and 16 (see [the toolchains guide](https://maven.apache.org/guides/mini/guide-using-toolchains.html)), then run `mvn clean package`.
+1. **Standard toolchains** — configure a `~/.m2/toolchains.xml` with JDK 8 and 16 (see [the toolchains guide](https://maven.apache.org/guides/mini/guide-using-toolchains.html)), then run `mvn clean package`.
 2. **Single modern JDK (included)** — this repository ships a `toolchains-local.xml` that maps every required version to one JDK (21 or newer). Edit the `jdkHome` path to point at your JDK, then run:
 
    ```
    mvn -t toolchains-local.xml clean package
    ```
 
-The finished plugin jar is `maptowny-plugin/target/SquareTowny-1.1.jar`.
+The finished plugin jar is `maptowny-plugin/target/SquareTowny-1.2.jar`.
 
 ## License
 
@@ -124,11 +122,10 @@ MIT. This fork retains the original MIT license and copyright of the upstream pr
 
 SquareTowny 是一个基于 [Spigot](https://www.spigotmc.org/) 的插件，作为 [Towny](https://github.com/TownyAdvanced/Towny) 的扩展，把每个城镇的领地范围渲染到网页地图上，玩家可以直接在地图上看到各个城镇（以及国家）的领土。
 
-本仓库是 [TownyAdvanced/MapTowny](https://github.com/TownyAdvanced/MapTowny)（原作者 Silverwolfg11，MIT 协议）的**面向 squaremap 的定制分支**，主要改动如下：
+本仓库是 [TownyAdvanced/MapTowny](https://github.com/TownyAdvanced/MapTowny)（原作者 Silverwolfg11，MIT 协议）的**仅支持 squaremap 的定制分支**，主要改动如下：
 
 - **自动配色（新增功能）**：每个城镇在地图上显示不同的颜色，同一国家的城镇颜色相同。
-- **移除**了 `maptowny-pl3xmap-v2` 和 `maptowny-pl3xmap-v3` 模块——这两个模块的构建依赖已从 Modrinth 的 Maven 仓库下架，无法再解析。
-- 目前支持的地图插件为：**squaremap、dynmap、BlueMap 和 Pl3xMap v1**（squaremap 为主要目标）。
+- **只支持 squaremap**：已移除 `maptowny-bluemap`、`maptowny-dynmap`、`maptowny-pl3xmap-v1`、`maptowny-pl3xmap-v2` 和 `maptowny-pl3xmap-v3` 模块。未安装 squaremap 时插件会自动停用。
 
 ## 功能特性
 
@@ -136,26 +133,26 @@ SquareTowny 是一个基于 [Spigot](https://www.spigotmc.org/) 的插件，作�
 - 自动配色优先于 Towny 中保存的地图颜色。Towny 会给每个新建城镇/国家随机分配一个地图颜色，这些值与玩家手动设置的颜色无法区分，因此若不优先自动配色，城镇加入国家后就会退回默认颜色。如需使用 Towny 中设置的颜色，请设置 `fill-style.use-auto-colors: false`。
 - 可配置的标记样式：填充/描边颜色、透明度、描边粗细、图标等。
 - 全异步处理，不阻塞主线程。
-- 同时支持多种网页地图：squaremap、dynmap、BlueMap（支持有限）、Pl3xMap v1。
+- 仅支持 squaremap，**不支持** dynmap、BlueMap 和 Pl3xMap。
 - 附带单元测试的多边形轮廓算法与负空间（"找洞"）算法。
 
 ## 支持的地图插件
 
 | 地图 | 版本 | 支持程度 |
 | --- | --- | --- |
-| [squaremap](https://github.com/jpenilla/squaremap) | 最新 | 完整（主要目标） |
-| [dynmap](https://www.spigotmc.org/resources/dynmap%C2%AE.274/) | 最新 | 完整 |
-| [BlueMap](https://www.spigotmc.org/resources/bluemap.83557/) | v3.3+ | 有限 |
-| [Pl3xMap](https://github.com/pl3xgaming/Pl3xMap) v1 | v1（1.18+ 请用这个[分支](https://github.com/NeumimTo/Pl3xMap)） | 完整 |
+| [squaremap](https://github.com/jpenilla/squaremap) | 最新 | 完整（唯一支持的地图） |
+| dynmap | — | ❌ 不支持 |
+| BlueMap | — | ❌ 不支持 |
+| Pl3xMap（v1 / v2 / v3） | — | ❌ 不支持 |
 
 ## 依赖
 
 - [Towny](https://github.com/TownyAdvanced/Towny) 0.97.1 及以上（**必需**）
-- 上表中的一个网页地图插件（**必需**）
+- [squaremap](https://github.com/jpenilla/squaremap)（**必需**，未安装时插件会自动停用）
 
 ## 安装
 
-1. 把插件 jar（`maptowny-plugin/target/SquareTowny-1.1.jar`）放入服务器的 `plugins` 目录。
+1. 把插件 jar（`maptowny-plugin/target/SquareTowny-1.2.jar`）放入服务器的 `plugins` 目录。
 2. 重启服务器，会自动生成 `SquareTowny/config.yml`。
 3. 把 `enabled-worlds` 改成你想显示领地范围的世界名。
 
@@ -208,20 +205,19 @@ SquareTowny 提供小型 API（`maptowny-api` 模块）供其他插件集成，�
 
 | 模块 | JDK 目标 |
 | --- | --- |
-| `maptowny-api`、`maptowny-plugin`、`maptowny-dynmap` | 8 |
-| `maptowny-bluemap` | 11 |
-| `maptowny-squaremap`、`maptowny-pl3xmap-v1` | 16 |
+| `maptowny-api`、`maptowny-plugin` | 8 |
+| `maptowny-squaremap` | 16 |
 
 两种构建方式：
 
-1. **标准 toolchains**：在 `~/.m2/toolchains.xml` 中配置 JDK 8、11、16（参考 [toolchains 指南](https://maven.apache.org/guides/mini/guide-using-toolchains.html)），然后执行 `mvn clean package`。
+1. **标准 toolchains**：在 `~/.m2/toolchains.xml` 中配置 JDK 8、16（参考 [toolchains 指南](https://maven.apache.org/guides/mini/guide-using-toolchains.html)），然后执行 `mvn clean package`。
 2. **单一现代 JDK（仓库自带配置）**：本仓库附带了 `toolchains-local.xml`，把所有需要的版本映射到同一个 JDK（21 或更新）。把其中 `jdkHome` 改成你本机的 JDK 路径后执行：
 
    ```
    mvn -t toolchains-local.xml clean package
    ```
 
-构建产物为 `maptowny-plugin/target/SquareTowny-1.1.jar`。
+构建产物为 `maptowny-plugin/target/SquareTowny-1.2.jar`。
 
 ## 许可证
 

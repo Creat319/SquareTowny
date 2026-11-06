@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 
 public final class MapTowny extends JavaPlugin implements MapTownyPlugin {
@@ -69,7 +68,7 @@ public final class MapTowny extends JavaPlugin implements MapTownyPlugin {
 
         // No map platform found so disable
         if (mapPlatform == null) {
-            getLogger().severe("Error no valid map plugin found! Valid map plugins: Pl3xMap v1, squaremap, dynmap, BlueMap");
+            getLogger().severe("Error no valid map plugin found! SquareTowny requires squaremap.");
             setEnabled(false);
             return;
         }
@@ -112,73 +111,28 @@ public final class MapTowny extends JavaPlugin implements MapTownyPlugin {
             mapPlatform.shutdown();
     }
 
-    // Load the appropriate map platform or the map plugin that Pl3xMapTowny should use.
-    // For right now this only supports squaremap and Pl3xMap
+    // Load the squaremap platform. squaremap is the only supported web-map plugin.
     @Nullable
     private MapPlatform loadPlatform() {
-        Predicate<String> pluginEnabled = (pluginName) -> Bukkit.getPluginManager().isPluginEnabled(pluginName);
+        if (!Bukkit.getPluginManager().isPluginEnabled("squaremap"))
+            return null;
 
-        if (pluginEnabled.test("Pl3xMap")) {
-            // Differentiate versions based on
-            // available classes.
-            String version;
-            if (classExists("net.pl3x.map.core.Pl3xMap")) {
-                version = "v3";
-            }
-            else if (classExists("net.pl3x.map.Pl3xMap")) {
-                version = "v2";
-            }
-            else {
-                version = "v1";
-            }
-
-            return loadPlatformClass("pl3xmap." + version + ".Pl3xMapPlatform");
-        }
-        else if (pluginEnabled.test("squaremap")) {
-            return loadPlatformClass("squaremap.SquareMapPlatform");
-        }
-        else if (pluginEnabled.test("dynmap")) {
-            return loadPlatformClass("dynmap.DynmapPlatform");
-        }
-        else if (pluginEnabled.test("BlueMap")) {
-            return loadPlatformClass("bluemap.BlueMapPlatform", this);
-        }
-
-        return null;
+        return loadPlatformClass("squaremap.SquareMapPlatform");
     }
 
-    private MapPlatform loadPlatformClass(@NotNull String abridgedPath) {
-        return loadPlatformClass(abridgedPath, null);
-    }
-
-    // Load class using reflection because some classes are compiled on different Java versions
+    // Load class using reflection because the platform module is compiled for a newer Java version
+    // than the plugin itself.
     @Nullable
-    private MapPlatform loadPlatformClass(@NotNull String abridgedPath, @Nullable JavaPlugin plugin) {
+    private MapPlatform loadPlatformClass(@NotNull String abridgedPath) {
         String platformClassPrefix = "me.silverwolfg11.maptowny.platform.";
         String platformClassPath = platformClassPrefix + abridgedPath;
         try {
             Class<?> platformClass = Class.forName(platformClassPath);
-            if (plugin != null) {
-                return (MapPlatform) platformClass.getConstructor(JavaPlugin.class).newInstance(plugin);
-            }
-            else {
-                return (MapPlatform) platformClass.getConstructor().newInstance();
-            }
+            return (MapPlatform) platformClass.getConstructor().newInstance();
         } catch (ReflectiveOperationException ex) {
             String msg = String.format("Error trying to load class '%s'", platformClassPath);
             getLogger().log(Level.SEVERE, msg, ex);
             return null;
-        }
-    }
-
-    // Check if a class is loaded.
-    private boolean classExists(@NotNull String classPath) {
-        try {
-            // If a class exists, but is not loaded, the static initializer will be called.
-            Class.forName(classPath);
-            return true;
-        } catch (Exception e) {
-            return false;
         }
     }
 

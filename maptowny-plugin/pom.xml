@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Copyright (c) 2022 Silverwolfg11
   ~
@@ -27,7 +27,7 @@
     <parent>
         <artifactId>MapTowny</artifactId>
         <groupId>me.silverwolfg11</groupId>
-        <version>1.1</version>
+        <version>1.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -123,29 +123,12 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Platforms -->
-        <dependency>
-            <groupId>me.silverwolfg11</groupId>
-            <artifactId>maptowny-pl3xmap-v1</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
+        <!-- Platform (squaremap only) -->
         <dependency>
             <groupId>me.silverwolfg11</groupId>
             <artifactId>maptowny-squaremap</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>me.silverwolfg11</groupId>
-            <artifactId>maptowny-dynmap</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>me.silverwolfg11</groupId>
-            <artifactId>maptowny-bluemap</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

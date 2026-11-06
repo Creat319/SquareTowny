@@ -36,7 +36,7 @@ import java.util.UUID;
 /**
  * Event called when a town is about to be rendered on the web-map for a specific world.
  *
- * Cancelling this event will prevent this town from being rendered in the world on the Pl3xMap.
+ * Cancelling this event will prevent this town from being rendered in the world on the squaremap.
  * This includes not rendering any homeblock or outpost icons for the town in the world.
  *
  * This event is called from an asynchronous context!

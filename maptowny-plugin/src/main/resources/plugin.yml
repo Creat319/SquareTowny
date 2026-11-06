@@ -3,7 +3,7 @@ version: ${project.version}
 main: me.silverwolfg11.maptowny.MapTowny
 api-version: 1.16
 depend: [ Towny ]
-softdepend: [ squaremap, Pl3xMap, dynmap, BlueMap ]
+softdepend: [ squaremap ]
 authors: [ Silverwolfg11 ]
 description: A squaremap-oriented Towny web-map addon with automatic distinct town colors.
 
